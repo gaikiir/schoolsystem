@@ -1,0 +1,517 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: inherit;
+}
+
+body {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+
+
+
+/* Navbar styles */
+nav {
+    background-color: #1f2937;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+nav .container {
+    max-width: 1400px; /* Increased from 1280px for wider navbar */
+    margin: 0 auto;
+    padding: 0 1.5rem; /* Increased padding for better spacing */
+}
+
+nav .container > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 5rem; /* Increased from 4rem for taller navbar */
+}
+
+/* Logo */
+.logo a {
+    font-size: 1.2rem; /* Increased from 1.5rem for larger logo */
+    font-weight: 700;
+    text-decoration: none;
+    color: white;
+}
+
+/* Navigation menu */
+.nav-menu {
+    display: flex;
+    gap: 1.5rem; /* Increased from 1rem for more spacing between items */
+    align-items: center;
+}
+
+.nav-menu a {
+    padding: 0.75rem 1rem; /* Increased padding for larger clickable area */
+    border-radius: 0.5rem; /* Slightly larger border-radius */
+    font-size: 1rem; /* Increased from 0.875rem for larger text */
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.2s ease;
+}
+
+.nav-menu a:hover {
+    background-color: #374151;
+}
+
+.nav-menu a.register {
+    background-color: #2563eb;
+}
+
+.nav-menu a.register:hover {
+    background-color: #1d4ed8;
+}
+
+.nav-menu a.login {
+    background-color: #16a34a;
+}
+
+.nav-menu a.login:hover {
+    background-color: #15803d;
+}
+
+/* Hamburger menu */
+.hamburger {
+    cursor: pointer;
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 35px; /* Increased from 30px for larger hamburger */
+    height: 24px; /* Increased from 20px for larger hamburger */
+}
+
+.hamburger span {
+    background-color: white;
+    height: 4px; /* Increased from 3px for thicker lines */
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(6px, 6px); /* Adjusted for larger hamburger */
+}
+
+.hamburger.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(8px, -8px); /* Adjusted for larger hamburger */
+}
+
+/* Main content */
+.main {
+    width: 100%; /* Increased from 1280px for wider main content */
+    flex: 1;
+}
+
+
+
+
+
+
+
+
+
+/* Hero Section */
+.hero {
+  background-image: linear-gradient(to right, rgba(30, 58, 138,.6), rgba(59, 130, 246,.6)),url('../images/student-849825_1280.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 6rem 1rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-wrapper {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+.hero p {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.hero-cta {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+.btn-primary {
+  display: inline-block;
+  background: #ffffff;
+  color: #1e3a8a;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s, background 0.3s;
+}
+.btn-primary:hover {
+  background: #f3f4f6;
+  transform: translateY(-2px);
+}
+.btn-secondary {
+  display: inline-block;
+  background: transparent;
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 2rem;
+  border: 2px solid white;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Benefits Section */
+.benefits {
+  padding: 4rem 1rem;
+  background: #f9fafb;
+}
+.benefits h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  color: #1f2937;
+  margin-bottom: 3rem;
+}
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+@media (min-width: 768px) {
+  .benefits-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .hero h1 {
+    font-size: 4rem;
+  }
+  .hero p {
+    font-size: 1.5rem;
+  }
+}
+.benefit-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  text-align: left;
+  transition: transform 0.2s;
+}
+.benefit-card:hover {
+  transform: translateY(-5px);
+}
+.benefit-card h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  color: #1e3a8a;
+}
+.benefit-card p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Reviews Section */
+.reviews {
+  padding: 4rem 1rem;
+  background: #ffffff;
+}
+.reviews h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-align: center;
+  color: #1f2937;
+  margin-bottom: 3rem;
+}
+.reviews-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.btn-edit{
+    background-color: #1e3a8a;
+    color: white;
+    padding: .5rem 1.6rem ;
+    border: none;
+    display: inline-block;
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-transform: capitalize;
+    margin-top: 1rem;
+     border-radius: 4px;
+}
+
+.btn-del {
+    background-color: #dc3545; /* Red background for delete action */
+    color: white; /* White text for contrast */
+    border: none; /* Remove default border */
+    padding: .5rem 1.6rem ; /* Comfortable padding */
+    border-radius: 4px; /* Slightly rounded corners */
+    font-size: 1.4rem; /* Readable text size */
+    font-weight: 500; /* Medium font weight */
+    cursor: pointer; /* Pointer cursor on hover */
+    text-decoration: none;
+    transition: background-color 0.2s ease; /* Smooth hover transition */
+}
+
+.btn-del:hover {
+    background-color: #c82333; /* Darker red on hover */
+}
+
+.btn-del:focus {
+    outline: none; /* Remove default focus outline */
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.3); /* Subtle focus ring */
+}
+
+.btn-del:active {
+    background-color: #bd2130; /* Even darker red on click */
+}
+
+.btn-edit:hover{
+    color: coral;
+    text-decoration: underline;
+}
+@media (min-width: 768px) {
+  .reviews-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.review-card {
+  background: #f9fafb;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+.review-card p {
+  color: #1f2937;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+.review-card .reviewer {
+  font-weight: 600;
+  color: #1e3a8a;
+  font-size: 1.1rem;
+}
+.review-card .rating {
+  color: #f59e0b;
+  margin-bottom: 0.5rem;
+}
+
+
+/* Event Section */
+.event {
+  padding: 5rem 1rem;
+  background: linear-gradient(to bottom, #f8fafc, #e5e7eb);
+  text-align: center;
+}
+.event h2 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 2.5rem;
+  line-height: 1.3;
+}
+.event-card {
+  max-width: 120rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 1.5rem;
+}
+/* @media (min-width: 768px) {
+  .event-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+} */
+.event-item {
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: left;
+}
+.event-item:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+.event-item .title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 0.75rem;
+}
+.event-item .para {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+.event-item .identify {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #3b82f6;
+}
+.empty {
+  font-size: 1.3rem;
+  color: #4b5563;
+  text-align: center;
+  padding: 2.5rem;
+  background: #ffffff;
+  border-radius: 0.75rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Footer */
+footer {
+    background-color: #1f2937;
+    color: white;
+    padding: 2rem 0;
+}
+
+footer .container {
+    max-width: 1400px; /* Increased from 1280px for wider footer */
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+
+footer .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+footer h3 {
+    font-size: 1.25rem; /* Increased from 1.125rem for larger headings */
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+footer p,
+footer ul li a {
+    font-size: 1rem; /* Increased from 0.875rem for larger text */
+    color: white;
+}
+
+footer ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Increased from 0.5rem for more spacing */
+}
+
+footer ul li a {
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+footer ul li a:hover {
+    color: #d1d5db;
+}
+
+footer .copyright {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 1rem; /* Increased from 0.875rem for larger text */
+}
+
+/* Responsive styles */
+@media (min-width: 640px) {
+    nav .container {
+        padding: 0 2rem; /* Increased padding for larger screens */
+    }
+
+    footer .container {
+        padding: 0 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    nav .container {
+        padding: 0 2.5rem; /* Increased padding for larger screens */
+    }
+
+    /* main {
+        padding: 3rem 2.5rem;
+    } */
+
+    footer .container {
+        padding: 0 2.5rem;
+    }
+
+    footer .grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .hamburger {
+        display: flex;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .nav-menu.active {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 5rem; /* Adjusted for taller navbar */
+        left: 0;
+        width: 100%;
+        background-color: #1f2937;
+        padding: 1.5rem; /* Increased padding for mobile menu */
+    }
+
+    .nav-menu a {
+        padding: 1rem; /* Increased padding for mobile menu items */
+        font-size: 1.125rem; /* Increased font size for mobile menu */
+    }
+}

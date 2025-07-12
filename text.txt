@@ -1,0 +1,242 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class UserController extends Controller
+{
+    public function __construct()
+    {
+        $this->middleware(['auth', 'EnsureRole:admin']);
+    }
+
+    public function index()
+    {
+        $totalUsers = User::count();
+        $users = User::all();
+        return view('admin.users.index', compact('totalUsers', 'users'));
+    }
+
+    public function approve($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'approved';
+        $user->save();
+        return redirect()->route('admin.users.index')->with('success', 'User approved successfully.');
+    }
+
+    public function block($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'blocked';
+        $user->save();
+        return redirect()->route('admin.users.index')->with('success', 'User blocked successfully.');
+    }
+
+    public function edit($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.users.edit', compact('user'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'role' => 'required|in:admin,user',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->role = $request->role;
+        $user->save();
+        return redirect()->route('admin.users.index')->with('success', 'User role updated successfully.');
+    }
+
+    public function destroy($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     <!-- Student Table -->
+
+                 {{--
+                                     <table class="w-full text-left border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+                        <thead class="bg-gray-100 text-gray-700 uppercase text-sm">
+                            <tr>
+                                <th class="p-4 font-semibold">Name</th>
+                                <th class="p-4 font-semibold">Student ID</th>
+                                <th class="p-4 font-semibold">Status</th>
+                                <th class="p-4 font-semibold">Actions</th>
+                                <th class="p-4 font-semibold">Delete</th>
+                            </tr>
+                        </thead>
+                <tbody class="text-gray-800">
+                    @foreach($users as $user)
+                        <tr class="border-b hover:bg-gray-50 transition-colors">
+                            <td class="p-4">{{ $user->name }}</td>
+                            <td class="p-4">{{ $user->id }}</td>
+                            <td class="p-4">
+                                @if($user->approved)
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-400" fill="currentColor" viewBox="0 0 8 8">
+                                            <circle cx="4" cy="4" r="3" />
+                                        </svg>
+                                        Approved
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                        <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-red-400" fill="currentColor" viewBox="0 0 8 8">
+                                            <circle cx="4" cy="4" r="3" />
+                                        </svg>
+                                        Pending
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="p-4 space-x-2">
+                                @if(!$user->approved)
+                                    <form action="{{ route('users.approve', $user->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="px-3 py-1 bg-green-600 text-white text-sm font-medium rounded-md hover:bg-green-700 transition-colors"
+                                                onclick="return confirm('Are you sure you want to approve this user?')">
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form action="#" method="POST" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit"
+                                                class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                                                onclick="return confirm('Are you sure you want to reject this user?')">
+                                            Reject
+                                        </button>
+                                    </form>
+                                @endif
+                            </td>
+                            <td class="p-4">
+                                <form action="#" method="POST" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 transition-colors"
+                                            onclick="return confirm('Are you sure you want to delete this user?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    @endforeach
+
+                </tbody>
+
+                </table>
+                <div class="mt-4">
+                    {{ $users->links() }}
+                </div>
+                  --}}
+                <!-- Assignments -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Recent Assignments</h3>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-600">
+                                <th class="p-2">Title</th>
+                                <th class="p-2">Subject</th>
+                                <th class="p-2">Due Date</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="p-2">Math Worksheet</td>
+                                <td class="p-2">Mathematics</td>
+                                <td class="p-2">Jul 10, 2025</td>
+                                <td class="p-2"><span class="text-yellow-600">Pending</span></td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="p-2">Essay on History</td>
+                                <td class="p-2">History</td>
+                                <td class="p-2">Jul 12, 2025</td>
+                                <td class="p-2"><span class="text-green-600">Submitted</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Lecturers -->
+                <div class="bg-white p-6 rounded-lg shadow mb-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Lecturer List</h3>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-600">
+                                <th class="p-2">Name</th>
+                                <th class="p-2">ID</th>
+                                <th class="p-2">Department</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="p-2">Dr. Jane Smith</td>
+                                <td class="p-2">LC12345</td>
+                                <td class="p-2">Mathematics</td>
+                                <td class="p-2"><span class="text-green-600">Active</span></td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="p-2">Prof. Mark Lee</td>
+                                <td class="p-2">LC12346</td>
+                                <td class="p-2">Science</td>
+                                <td class="p-2"><span class="text-green-600">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Payments -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-4">Recent Payments</h3>
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-gray-600">
+                                <th class="p-2">Student</th>
+                                <th class="p-2">Amount</th>
+                                <th class="p-2">Date</th>
+                                <th class="p-2">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                        <td class="p-2">John Doe</td>
+                        <td class="p-2">$500</td>
+                        <td class="p-2">Jul 5, 2025</td>
+                        <td class="p-2"><span class="text-green-600">Completed</span></td>
+                    </tr>
+                    <tr class="border-t">
+                    <td class="p-2">Jane Roe</td>
+                    <td class="p-2">$450</td>
+                    <td class="p-2">Jul 4, 2025</td>
+                    <td class="p-2"><span class="text-yellow-600">Pending</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
