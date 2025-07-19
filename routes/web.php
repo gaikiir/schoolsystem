@@ -1,5 +1,6 @@
 <?php
 //to av
+
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\ProgramController as AdminProgramController;
@@ -7,6 +8,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\Admin\AssignmentController as AdminAssignmentController;
+
 use Illuminate\Support\Facades\Route;
 
 
@@ -65,7 +68,25 @@ Route::delete('/events/{id}',[AdminEventController::class,'destroy'])->name('eve
     Route::get('/programs/{id}/edit',[AdminProgramController::class,'edit'])->name('programs.edit');
     Route::put('/programs/{id}',[AdminProgramController::class,'update'])->name('programs.update');
     Route::delete('/programs/{id}',[AdminProgramController::class,'destroy'])->name('programs.destroy');
+
+//assignment routes 
+
+Route::get('/assignments', [AdminAssignmentController::class, 'index'])->name('assignments.index');
+Route::get('/assignments/create', [AdminAssignmentController::class, 'create'])->name('assignments.create');
+Route::post('/assignments', [AdminAssignmentController::class, 'store'])->name('assignments.store');
+Route::get('/assignments/{assignment}/edit',[AdminAssignmentController::class,'edit'])->name('assignment.edit');
+Route::put('/assignments/{assignment}',[AdminAssignmentController::class,'update'])->name('assignments.update');
+Route::delete('/assignments/{assignment}',[AdminAssignmentController::class, 'destroy'])->name('assignment.destroy');
+// Assign students to an assignment (POST /admin/assignments/{assignment}/assign-students)
+Route::post('/assignments/{assignment}/assign-students', [AdminAssignmentController::class, 'assignStudents'])->name('assignments.assign-students');
 });
+
+
+
+
+
+
+
 
 
 // Frontend Blog Routes (public access)
