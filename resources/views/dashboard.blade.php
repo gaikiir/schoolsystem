@@ -3,7 +3,7 @@
 @section('content')
 <section class="bg-gray-100 p-4">
     <div class="bg-white p-6 rounded-lg shadow mb-6">
-        <h3 class="text-lg font-semibold text-gray-700 mb-4">Student List</h3>
+        <h3 class="text-lg font-semibold text-gray-700 mb-4">List Of Users</h3>
         <div class="overflow-x-auto">
             @if (session('success'))
                 <div class="bg-green-100 text-green-700 p-4 rounded mb-4">
@@ -53,8 +53,9 @@
                                     <div class="flex gap-2">
                                         <form action="{{ route('users.approve', $user->id) }}" method="POST">
                                             @csrf
-                                            <button type="submit" class="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 transition text-sm">Approve</button>
+                                            <button type="submit" class=" bg-orange-400 text-white px-3 py-1.5 rounded hover:bg-orange-600 transition text-sm">Approve</button>
                                         </form>
+                                        <a class="bg-blue-500 text-white px-3 py-1.5 rounded hover:bg-blue-600 transition text-sm" href="{{route('users.edit', $user->id)}}">Edit</a>
                                         <form action="{{ route('users.block', $user->id) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="bg-red-500 text-white px-3 py-1.5 rounded hover:bg-red-600 transition text-sm">Block</button>
