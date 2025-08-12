@@ -16,7 +16,7 @@ class EventController extends Controller
     }
     //display events in the admindashboard
     public function index(){
-        $events = Event::all();
+        $events = Event::paginate(6);
         return view('admin.events.index', compact('events'));
     }
     //show form to create a new event
@@ -34,7 +34,7 @@ class EventController extends Controller
         ]);
         //create the validated data
         Event::create($isValidated);
-        return redirect()->route('events.index')->with('success', 'Blog created successfully.');
+        return redirect()->route('admin.events.index')->with('success', 'Blog created successfully.');
     }
     //show the edited form in admin dash for edit
     public function edit(string $id){
@@ -50,7 +50,7 @@ class EventController extends Controller
         ]);
         $event = Event::findOrFail($id);
         $event->update($isValidated);
-         return redirect()->route('events.index')->with('success', 'Event updated successfully!');
+         return redirect()->route('admin.events.index')->with('success', 'Event updated successfully!');
 
     }
 
@@ -59,6 +59,6 @@ class EventController extends Controller
     public function destroy(string $id){
         $event = Event::findOrFail($id);
         $event->delete();
-        return redirect()->route('admindash')->with('success', 'Event deleted successfully!');
+        return redirect()->route('admin.admin.dashboard')->with('success', 'Event deleted successfully!');
     }
 }
