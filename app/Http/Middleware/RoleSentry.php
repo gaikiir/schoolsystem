@@ -15,11 +15,10 @@ class RoleSentry
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        //securely check if the users based on their rolels
         if (!Auth::check() || strtolower(Auth::user()->role) !== strtolower($role)) {
             abort(403, 'Unauthorized access attempt');
         }
-        
+
         return $next($request);
     }
 }

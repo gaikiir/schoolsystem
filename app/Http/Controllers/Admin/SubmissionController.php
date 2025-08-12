@@ -1,20 +1,43 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class SubmissionController extends Controller
 {
-    // Fetch assignments assigned to the current user via the assignment_student pivot table
+    /**
+     * Display submitted and pending assignments.
+     */
 
-// public function index(){
-//     $assignments = Auth::user()->assignments()->with('submissions')->get();
-//         // Return the student assignments index view, passing the assignments collection
-//         return view('user.submissions.index', compact('assignments'));
-// }
+    public function index()
+    {
+        // Get pending submissions (not submitted) with pagination
+        $pending = AssignmentSubmission::with(['assignment', 'user'])
+            ->where('is_submitted', false)
+            ->latest()
+            ->paginate(3);
 
+        // Get submitted assignments with pagination
+        $submitted = AssignmentSubmission::with(['assignment', 'user'])
+            ->where('is_submitted', true)
+            ->latest()
+            ->paginate(3);
 
+        return view('admin.submissions.index', compact('pending', 'submitted'));
+    }
+
+    /**
+     * Display report for a specific assignment.
+     */
+    public function report(Assignment $assignment)
+    {
+        // Fetch submissions for the assignment
+        $submissions = AssignmentSubmission::where('assignment_id', $assignment->id)
+            ->with('user')
+            ->get();
+        return view('admin.submissions.report', compact('assignment', 'submissions'));
+    }
 }

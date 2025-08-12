@@ -14,7 +14,7 @@ class RoleRedirector
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle($request, Closure $next)
     {
         if (!Auth::check()) {
             return redirect()->route('login');
@@ -23,13 +23,13 @@ class RoleRedirector
         $role = strtolower(Auth::user()->role);
 
         if ($role === 'admin') {
-            return redirect()->route('admindash');
-        } elseif ($role === 'user') {
-            return redirect()->route('user.dashboard');
+            return redirect()->route('admin.dahboard');
+        } elseif ($role === 'student') {
+            return redirect()->route('student.dashboard');
         }
 
         // If the role is not recognized, abort with 403
         abort(403, 'Not Authorized');
-        return $next($request);
     }
+
 }

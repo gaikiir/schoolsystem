@@ -4,228 +4,163 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
-use App\Models\Choice;
 use App\Models\Question;
 use App\Models\User;
+use App\Models\AssignmentSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class AssignmentController extends Controller
 {
     /**
-     * Apply middleware to restrict access to authenticated admins only.
-     */
-    public function __construct()
-    {
-        // Ensure only authenticated users with role 'admin' can access these methods
-        $this->middleware(['auth', 'EnsureRole:admin']);
-    }
-
-    /**
-     * Display a list of all assignments in the admin dashboard.
+     * Display a listing of assignments.
      */
     public function index()
     {
-        // Fetch all assignments (consider filtering by created_by for the current admin)
-        $assignments = Assignment::where('create_by', Auth::id())->get();
-
-        // Return the admin assignments index view, passing the assignments collection
+        // Fetch all assignments with their questions
+        $assignments = Assignment::with('questions')->paginate(3);
         return view('admin.assignments.index', compact('assignments'));
     }
 
     /**
      * Show the form for creating a new assignment.
-     *
-     * @return \Illuminate\View\View The view for the assignment creation form.
      */
     public function create()
     {
-        // Fetch approved students for assignment selection
-        $students = User::where('role', 'user')->where('status', 'approved')->get();
-
-        // Return the create assignment view, passing the students collection
+        // Fetch only approved students
+        $students = User::where('role', 'student')->where('status', 'approved')->get();
         return view('admin.assignments.create', compact('students'));
     }
 
     /**
-     * Store a newly created assignment in the database.
+     * Store a newly created assignment and its questions.
      */
     public function store(Request $request)
     {
-        //inspect the incoming request data:
-        Log::info($request->all());
-    
-        // Validate the incoming request data
-        $request->validate([
-            'title' => 'required|string|max:255', // Assignment title is required, max 255 characters
-            'description' => 'nullable|string', // Description is optional
-            'questions' => 'required|array|min:1', // At least one question is required
-            'questions.*.question_text' => 'required|string', // Each question must have text
-            'questions.*.correct_answer' => 'required|in:A,B,C', // Correct answer must be A, B, or C
-            'questions.*.choices' => 'required|array|size:3', // Each question must have exactly 3 choices
-            'questions.*.choices.*.option' => 'required|in:A,B,C', // Each choice option must be A, B, or C
-            'questions.*.choices.*.option_text' => 'required|string', // Each choice must have text
-            'students' => 'required|array|min:1', // At least one student must be assigned
+        // Validate the request data
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'total_marks' => 'required|integer|min:1',
+            'deduction_per_wrong_answer' => 'required|integer|min:0',
+            'students' => 'required|array|min:1',
+            'students.*' => 'exists:users,id,role,student,status,approved', // Restrict to approved students            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.option_a' => 'required|string',
+            'questions.*.option_b' => 'required|string',
+            'questions.*.option_c' => 'required|string',
+            'questions.*.correct_option' => 'required|in:A,B,C',
+            'questions.*.marks' => 'required|integer|min:1',
         ]);
 
-        // Create a new assignment with the validated data
+        // Create the assignment
         $assignment = Assignment::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'create_by' => Auth::id(), // Set the creator as the authenticated admin
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'total_marks' => $validated['total_marks'],
+            'deduction_per_wrong_answer' => $validated['deduction_per_wrong_answer'],
         ]);
 
-        // Create questions for the assignment
-        foreach ($request->questions as $question) {
-            $QnData = Question::create([
+        // Create questions
+        foreach ($validated['questions'] as $questionData) {
+            Question::create([
                 'assignment_id' => $assignment->id,
-                'question_text' => $question['question_text'],
-                'correct_answer' => $question['correct_answer'],
-                'marks' => 10, // Hardcoded marks for each question
+                'question_text' => $questionData['question_text'],
+                'option_a' => $questionData['option_a'],
+                'option_b' => $questionData['option_b'],
+                'option_c' => $questionData['option_c'],
+                'correct_option' => $questionData['correct_option'],
+                'marks' => $questionData['marks'],
             ]);
-
-            // Create choices for each question
-            foreach ($question['choices'] as $choice) {
-                Choice::create([
-                    'question_id' => $QnData->id,
-                    'option' => $choice['option'],
-                    'option_text' => $choice['option_text'],
-                ]);
-            }
         }
 
-        // Attach students to the assignment via the assignment_student pivot table
-        $assignment->students()->attach($request->students);
+        // Assign to selected students
+        foreach ($validated['students'] as $studentId) {
+            $assignment->submissions()->create([
+                'user_id' => $studentId,
+                'answers' => [],
+                'is_submitted' => false,
+            ]);
+        }
 
-        // Redirect to the admin assignments index with a success message
-        return redirect()->route('assignments.index')->with('success', 'Assignment created successfully');
+        return redirect()->route('admin.admin.assignments.index')->with('success', 'Assignment created successfully.');
     }
 
     /**
-     * Show the form for editing an existing assignment.
-
+     * Show the form for editing an assignment.
      */
     public function edit(Assignment $assignment)
     {
-        // Check if the user is authorized to edit the assignment (admin, approved, and creator)
-        //$this->authorizeAssignment($assignment);
-
-        // Fetch approved students for assignment selection
-        $students = User::where('role', 'user')->where('status', 'approved')->get();
-
-        // Return the edit view, passing the assignment and students data
-        return view('admin.assignments.edit', compact('assignment', 'students'));
+        // Fetch students and questions for editing
+        $students = User::where('role', 'student')->where('status', 'approved')->get();
+        $assignment->load('questions', 'submissions');
+        $selectedStudents = $assignment->submissions->pluck('user_id')->toArray();
+        return view('admin.assignments.edit', compact('assignment', 'students', 'selectedStudents'));
     }
 
     /**
-     * Update an existing assignment in the database.
-     *
+     * Update the specified assignment.
      */
     public function update(Request $request, Assignment $assignment)
     {
-        // Check if the user is authorized to update the assignment (admin, approved, and creator)
-       // $this->authorizeAssignment($assignment);
-
-        // Validate the incoming request data
-        $request->validate([
-            'title' => 'required|string|max:255', // Assignment title is required, max 255 characters
-            'description' => 'nullable|string', // Description is optional
-            'questions' => 'required|array|min:1', // At least one question is required
-            'questions.*.question_text' => 'required|string', // Each question must have text
-            'questions.*.correct_answer' => 'required|in:A,B,C', // Correct answer must be A, B, or C
-            'questions.*.choices' => 'required|array|size:3', // Each question must have exactly 3 choices
-            'questions.*.choices.*.option' => 'required|in:A,B,C', // Each choice option must be A, B, or C
-            'questions.*.choices.*.option_text' => 'required|string', // Each choice must have text
-            'students' => 'required|array|min:1', // At least one student must be assigned
+        // Validate the request data
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'total_marks' => 'required|integer|min:1',
+            'deduction_per_wrong_answer' => 'required|integer|min:0',
+            'students' => 'required|array|min:1',
+            'students.*' => 'exists:users,id,role,student,status,approved', // Restrict to approved students            'questions' => 'required|array|min:1',
+            'questions.*.question_text' => 'required|string',
+            'questions.*.option_a' => 'required|string',
+            'questions.*.option_b' => 'required|string',
+            'questions.*.option_c' => 'required|string',
+            'questions.*.correct_option' => 'required|in:A,B,C',
+            'questions.*.marks' => 'required|integer|min:1',
         ]);
 
-        // Update the assignment's title and description
+        // Update assignment
         $assignment->update([
-            'title' => $request->title,
-            'description' => $request->description,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'total_marks' => $validated['total_marks'],
+            'deduction_per_wrong_answer' => $validated['deduction_per_wrong_answer'],
         ]);
 
-        // Delete existing questions to replace with new ones
+        // Delete existing questions and recreate
         $assignment->questions()->delete();
-
-        // Create new questions from the request data
-        foreach ($request->questions as $qData) {
-            $question = Question::create([
+        foreach ($validated['questions'] as $questionData) {
+            Question::create([
                 'assignment_id' => $assignment->id,
-                'question_text' => $qData['question_text'],
-                'correct_answer' => $qData['correct_answer'],
-                'marks' => 10, // Hardcoded marks for each question
+                'question_text' => $questionData['question_text'],
+                'option_a' => $questionData['option_a'],
+                'option_b' => $questionData['option_b'],
+                'option_c' => $questionData['option_c'],
+                'correct_option' => $questionData['correct_option'],
+                'marks' => $questionData['marks'],
             ]);
-
-            // Create choices for the question
-            foreach ($qData['choices'] as $choice) {
-                Choice::create([
-                    'question_id' => $question->id,
-                    'option' => $choice['option'],
-                    'option_text' => $choice['option_text'],
-                ]);
-            }
         }
 
-        // Sync the assigned students (replaces existing assignments in assignment_student table)
-        $assignment->students()->sync($request->students);
+        // Update assigned students
+        $assignment->submissions()->delete();
+        foreach ($validated['students'] as $studentId) {
+            $assignment->submissions()->create([
+                'user_id' => $studentId,
+                'answers' => [],
+                'is_submitted' => false,
+            ]);
+        }
 
-        // Redirect to the admin assignments index with a success message
-        return redirect()->route('assignments.index')->with('success', 'Assignment updated.');
+        return redirect()->route('admin.assignments.index')->with('success', 'Assignment updated successfully.');
     }
 
     /**
-     * Delete an assignment from the database.
-     *
+     * Remove the specified assignment.
      */
     public function destroy(Assignment $assignment)
     {
-        // Check if the user is authorized to delete the assignment
-        //$this->authorizeAssignment($assignment);
-
-        // Delete the assignment (cascades to questions and submissions if configured)
+        // Delete assignment and its related questions/submissions
         $assignment->delete();
-
-        // Redirect to the admin assignments index with a success message
-        return redirect()->route('assignments.index')->with('success', 'Assignment deleted.');
-    }
-
-    /**
-     * Assign students to an existing assignment.
-     *
-  
-     */
-    public function assignStudents(Request $request, Assignment $assignment)
-    {
-        // Check if the user is authorized to assign students
-        $this->authorizeAssignment($assignment);
-
-        // Validate the incoming student IDs
-        $request->validate([
-            'students' => 'required|array|min:1', // At least one student must be selected
-        ]);
-
-        // Sync the students in the assignment_student pivot table
-        $assignment->students()->sync($request->students);
-
-        // Redirect to the admin assignments index with a success message
-        return redirect()->route('admin.assignments.index')->with('success', 'Students assigned.');
-    }
-
-    /**
-     * Authorize the user to perform actions on an assignment.
-     * Only admins who created the assignment and have approved status can proceed.
-     */
-    private function authorizeAssignment(Assignment $assignment)
-    {
-        // Check if the user is the creator, an admin, and approved
-        if (
-            $assignment->created_by !== Auth::id() ||
-            strtolower(Auth::user()->role) !== 'admin' ||
-            Auth::user()->status !== 'approved'
-        ) {
-            abort(403, 'Unauthorized action.');
-        }
+        return redirect()->route('admin.assignments.index')->with('success', 'Assignment deleted successfully.');
     }
 }

@@ -12,4 +12,8 @@ class Event extends Model
         'title',
         'description',
     ];
+    public function scopeRecent($query)
+    {
+        return $query->latest()->take(1);
+    }
 }

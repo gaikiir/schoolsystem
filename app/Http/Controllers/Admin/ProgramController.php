@@ -34,7 +34,7 @@ class ProgramController extends Controller
 
         $program = Program::create($validated);
         // Flash success message with title and creation time
-        return redirect()->route('admindash')->with('program_notification', [
+        return redirect()->route('admin.admin.dashboard')->with('program_notification', [
             'title' => $program->title,
             'created_at' => $program->created_at->format('Y-m-d H:i:s'),
         ]);
@@ -60,7 +60,7 @@ class ProgramController extends Controller
 
         $program = Program::create($validated);
         // Flash success message with title and creation time
-        return redirect()->route('admindash')->with('program_notification', [
+        return redirect()->route('admin.admin.dashboard')->with('program_notification', [
             'title' => $program->title,
             'created_at' => $program->created_at->format('Y-m-d H:i:s'),
         ]);

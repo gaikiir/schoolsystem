@@ -15,4 +15,16 @@ class Program extends Model
         'mode',
         'level',
     ];
+
+    public function applications()
+    {
+        return $this->hasMany(CourseApplication::class);
+    }
+
+    
+    
+    public function scopeRecent($query)
+    {
+        return $query->latest()->take(2);
+    }
 }

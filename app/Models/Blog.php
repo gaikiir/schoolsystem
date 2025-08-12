@@ -8,9 +8,22 @@ use Illuminate\Database\Eloquent\Model;
 class Blog extends Model
 {
     use HasFactory;
-    protected $fillable =[
+
+    protected $fillable = [
         'title',
-        'author',
+        'user_id',
+        'role',
         'description',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+   
+
+    public function scopeRecent($query)
+    {
+        return $query->latest()->take(2);
+    }
 }
