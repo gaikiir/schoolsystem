@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Assignment;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -13,57 +14,97 @@ class UserController extends Controller
         $this->middleware(['auth', 'EnsureRole:admin']);
     }
 
-    public function showDashboard()
+    /**
+     * Display the admin dashboard with users and assignments.
+    
+     */
+    public function index()
     {
-        // $users = User::where('role', 'user')->paginate(4);
-        // $admins = User::where('role', 'admin')->paginate(4);
+        $users = User::paginate(2);
         $total = User::count();
-       $users = User::all();
-        return view('dashboard', compact('users', 'total',));
+        //get the new registered users
+        return view('admin.users.index', compact('users', 'total',));
     }
 
-    // public function index(){
-    //     return view('dashboard');
-    // }
+    /**
+     * Approve a user.
 
+     */
     public function approve($id)
     {
         $user = User::findOrFail($id);
         $user->status = 'approved';
         $user->save();
-        return redirect()->route('admindash')->with('success', 'User approved successfully.');
+
+        // Clear the student notification from session
+        session()->forget('student_notification');
+
+        return redirect()->route('admin.admin.users.index')->with('success', 'User approved successfully.');
     }
 
+    /**
+     * Block a user.
+     
+
+     */
     public function block($id)
     {
         $user = User::findOrFail($id);
-        $user->status = 'blocked';
+        $user->status = 'rejected';
         $user->save();
-        return redirect()->route('admindash')->with('success', 'User blocked successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User blocked successfully.');
     }
 
-    public function edit($id)
-    {
-        $user = User::findOrFail($id);
-        return view('admin.users.edit', compact('user'));
-    }
-
+    /**
+     * Show the form for editing a user.
+     *
+     * @param int $id
+ 
+     */
+    
     public function update(Request $request, $id)
     {
         $request->validate([
-            'role' => 'required|in:admin,user',
+            'role' => 'required|in:admin,student',
         ]);
 
         $user = User::findOrFail($id);
         $user->role = $request->role;
         $user->save();
-        return redirect()->route('admindash')->with('success', 'User role updated successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User role updated successfully.');
     }
 
+
+    /**
+     
+
+    /**
+     * Handle new user registration notification (called from registration process).
+     */
+    public static function notifyNewRegister(User $user)
+    {
+        // Store the new user registration notification in the session
+        session([
+            'success' => 'New user registered successfully.',
+            'student_notification' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'created_at' => $user->created_at,
+                'id' => $user->id,
+            ]
+        ]);
+    }
+
+
+    /**
+     * Delete a user.
+     *
+
+     */
     public function destroy($id)
     {
         $user = User::findOrFail($id);
         $user->delete();
-        return redirect()->route('admindash')->with('success', 'User deleted successfully.');
+        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
     }
 }
